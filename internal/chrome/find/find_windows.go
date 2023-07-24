@@ -1,4 +1,5 @@
-//+build windows
+//go:build windows
+// +build windows
 
 package find
 
@@ -29,4 +30,12 @@ func chromiumRoots() ([]string, error) {
 		return nil, errors.New(`%LocalAppData% is empty`)
 	}
 	return []string{filepath.Join(cfgDir, `Chromium`, `User Data`)}, nil
+}
+
+func braveRoots() ([]string, error) {
+	cfgDir := os.Getenv(`LocalAppData`)
+	if len(cfgDir) == 0 {
+		return nil, errors.New(`%LocalAppData% is empty`)
+	}
+	return []string{filepath.Join(cfgDir, `BraveSoftware`, "Brave-Browser", `User Data`)}, nil
 }

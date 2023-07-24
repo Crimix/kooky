@@ -1,6 +1,7 @@
 package all
 
 import (
+	_ "github.com/zellyn/kooky/browser/brave"
 	_ "github.com/zellyn/kooky/browser/browsh"
 	_ "github.com/zellyn/kooky/browser/chrome"
 	_ "github.com/zellyn/kooky/browser/chromium"
