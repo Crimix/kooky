@@ -36,11 +36,16 @@ func (s *CookieStore) ReadCookies(filters ...kooky.Filter) ([]*kooky.Cookie, err
 		"httponly": "is_httponly",
 	}
 	err := utils.VisitTableRows(s.Database, `cookies`, headerMappings, func(rowID *int64, row utils.TableRow) error {
-		cookie := &kooky.Cookie{
-			Creation: timex.FromFILETIME(*rowID * 10),
-		}
-
 		var err error
+
+		creation_utc, err := row.Int64(`host_key`)
+		if err != nil {
+			return err
+		}
+		cookie := &kooky.Cookie{
+			// https://cs.chromium.org/chromium/src/base/time/time.h?l=452&rcl=fceb9a030c182e939a436a540e6dacc70f161cb1
+			Creation: timex.FromFILETIME(creation_utc * 10),
+		}
 
 		cookie.Domain, err = row.String(`host_key`)
 		if err != nil {
