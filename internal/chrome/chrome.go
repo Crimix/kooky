@@ -38,7 +38,7 @@ func (s *CookieStore) ReadCookies(filters ...kooky.Filter) ([]*kooky.Cookie, err
 	err := utils.VisitTableRows(s.Database, `cookies`, headerMappings, func(rowID *int64, row utils.TableRow) error {
 		var err error
 
-		creation_utc, err := row.Int64(`host_key`)
+		creation_utc, err := row.Int64(`creation_utc`)
 		if err != nil {
 			return err
 		}
