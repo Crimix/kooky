@@ -29,6 +29,10 @@ func FindBraveCookieStoreFiles() ([]*chromeCookieStoreFile, error) {
 	return FindCookieStoreFiles(braveRoots, `brave`)
 }
 
+func FindWebView2CookieStoreFiles(rootsFunc func() ([]string, error)) ([]*chromeCookieStoreFile, error) {
+	return FindCookieStoreFiles(rootsFunc, `webview2`)
+}
+
 func FindCookieStoreFiles(rootsFunc func() ([]string, error), browserName string) ([]*chromeCookieStoreFile, error) {
 	if rootsFunc == nil {
 		return nil, errors.New(`passed roots function is nil`)
