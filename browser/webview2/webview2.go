@@ -1,4 +1,4 @@
-package chromium
+package webview2
 
 import (
 	"net/http"
