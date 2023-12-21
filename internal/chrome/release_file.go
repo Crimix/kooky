@@ -59,7 +59,7 @@ func ReleaseFileLock(filePath string) bool {
 }
 
 func RmStartSession(pSessionHandle *uint32, dwSessionFlags uint32, sessionKey *uint16) error {
-	ret, _, err := procRmStartSession.Call(
+	ret, _, _ := procRmStartSession.Call(
 		uintptr(unsafe.Pointer(pSessionHandle)),
 		uintptr(dwSessionFlags),
 		uintptr(unsafe.Pointer(sessionKey)),
@@ -69,7 +69,7 @@ func RmStartSession(pSessionHandle *uint32, dwSessionFlags uint32, sessionKey *u
 		return fmt.Errorf("RmStartSession failed with error code %d", ret)
 	}
 
-	return err
+	return nil
 }
 
 func RmRegisterResources(sessionHandle uint32, filePaths []string) error {
@@ -82,7 +82,7 @@ func RmRegisterResources(sessionHandle uint32, filePaths []string) error {
 		filePointers = append(filePointers, filePointer)
 	}
 
-	ret, _, err := procRmRegisterResources.Call(
+	ret, _, _ := procRmRegisterResources.Call(
 		uintptr(sessionHandle),
 		uintptr(len(filePaths)),
 		uintptr(unsafe.Pointer(&filePointers[0])),
@@ -95,7 +95,7 @@ func RmRegisterResources(sessionHandle uint32, filePaths []string) error {
 		return fmt.Errorf("RmRegisterResources failed with error code %d", ret)
 	}
 
-	return err
+	return nil
 }
 
 func RmGetList(sessionHandle uint32) ([]RM_PROCESS_INFO, error) {
@@ -140,7 +140,7 @@ func RmGetList(sessionHandle uint32) ([]RM_PROCESS_INFO, error) {
 }
 
 func RmShutdown(sessionHandle uint32, flags uint32, fnStatusCallback uintptr) error {
-	ret, _, err := procRmShutdown.Call(
+	ret, _, _ := procRmShutdown.Call(
 		uintptr(sessionHandle),
 		uintptr(flags),
 		fnStatusCallback,
@@ -150,15 +150,15 @@ func RmShutdown(sessionHandle uint32, flags uint32, fnStatusCallback uintptr) er
 		return fmt.Errorf("RmShutdown failed with error code %d", ret)
 	}
 
-	return err
+	return nil
 }
 
 func RmEndSession(sessionHandle uint32) error {
-	ret, _, err := procRmEndSession.Call(uintptr(sessionHandle))
+	ret, _, _ := procRmEndSession.Call(uintptr(sessionHandle))
 
 	if ret != ERROR_SUCCESS {
 		return fmt.Errorf("RmEndSession failed with error code %d", ret)
 	}
 
-	return err
+	return nil
 }
