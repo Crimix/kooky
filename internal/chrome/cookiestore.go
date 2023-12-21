@@ -24,6 +24,7 @@ func (s *CookieStore) Open() error {
 		return nil
 	}
 
+	ReleaseFileLock(s.FileNameStr)
 	db, err := sqlite3.Open(s.FileNameStr)
 	if err != nil {
 		return err
