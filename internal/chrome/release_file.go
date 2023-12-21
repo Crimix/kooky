@@ -7,12 +7,12 @@ import (
 )
 
 var (
-	advapi32                = syscall.NewLazyDLL("advapi32.dll")
-	procRmStartSession      = advapi32.NewProc("RmStartSession")
-	procRmRegisterResources = advapi32.NewProc("RmRegisterResources")
-	procRmGetList           = advapi32.NewProc("RmGetList")
-	procRmShutdown          = advapi32.NewProc("RmShutdown")
-	procRmEndSession        = advapi32.NewProc("RmEndSession")
+	rstrtmgr                = syscall.NewLazyDLL("rstrtmgr.dll")
+	procRmStartSession      = rstrtmgr.NewProc("RmStartSession")
+	procRmRegisterResources = rstrtmgr.NewProc("RmRegisterResources")
+	procRmGetList           = rstrtmgr.NewProc("RmGetList")
+	procRmShutdown          = rstrtmgr.NewProc("RmShutdown")
+	procRmEndSession        = rstrtmgr.NewProc("RmEndSession")
 )
 
 const (
