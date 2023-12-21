@@ -100,15 +100,17 @@ func RmRegisterResources(sessionHandle uint32, filePaths []string) error {
 
 func RmGetList(sessionHandle uint32) ([]RM_PROCESS_INFO, error) {
 	var pnProcInfoNeeded, pnProcInfo, lpdwRebootReasons uint32
+	maxRetries := 5
 	var rgAffectedApps []RM_PROCESS_INFO
+	rgAffectedApps = make([]RM_PROCESS_INFO, 1)
 
-	for {
+	for i := 0; i < maxRetries; i++ {
 		// First call to get the required buffer size
 		result, _, _ := procRmGetList.Call(
 			uintptr(sessionHandle),
 			uintptr(unsafe.Pointer(&pnProcInfoNeeded)),
 			uintptr(unsafe.Pointer(&pnProcInfo)),
-			uintptr(0), // Pass nil since we're only interested in the required size
+			uintptr(unsafe.Pointer(&rgAffectedApps[0])), // Pass the address of the first element
 			uintptr(unsafe.Pointer(&lpdwRebootReasons)),
 		)
 
@@ -135,7 +137,7 @@ func RmGetList(sessionHandle uint32) ([]RM_PROCESS_INFO, error) {
 		uintptr(sessionHandle),
 		uintptr(unsafe.Pointer(&pnProcInfoNeeded)),
 		uintptr(unsafe.Pointer(&pnProcInfo)),
-		uintptr(unsafe.Pointer(&rgAffectedApps[0])),
+		uintptr(unsafe.Pointer(&rgAffectedApps[0])), // Pass the address of the first element
 		uintptr(unsafe.Pointer(&lpdwRebootReasons)),
 	)
 
