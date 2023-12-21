@@ -118,12 +118,8 @@ func RmGetList(sessionHandle uint32) ([]RM_PROCESS_INFO, error) {
 		return nil, nil // No process information available
 	}
 
-	if pnProcInfo == 0 {
-		return nil, fmt.Errorf("RmGetList failed to allocate memory for process information")
-	}
-
 	// Allocate memory for the process information
-	rgAffectedApps = make([]RM_PROCESS_INFO, pnProcInfo)
+	rgAffectedApps = make([]RM_PROCESS_INFO, pnProcInfoNeeded)
 	result, _, _ = procRmGetList.Call(
 		uintptr(sessionHandle),
 		uintptr(unsafe.Pointer(&pnProcInfoNeeded)),
