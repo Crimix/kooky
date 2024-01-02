@@ -99,32 +99,22 @@ func RmRegisterResources(sessionHandle uint32, filePaths []string) error {
 }
 
 func RmGetList(sessionHandle uint32) ([]RM_PROCESS_INFO, error) {
-	var pnProcInfoNeeded, pnProcInfo, lpdwRebootReasons uint32
-	maxRetries := 5
-	var rgAffectedApps []RM_PROCESS_INFO
-	rgAffectedApps = make([]RM_PROCESS_INFO, 1)
+	var (
+		pnProcInfoNeeded, pnProcInfo, lpdwRebootReasons uint32
+		rgAffectedApps                                  []RM_PROCESS_INFO
+	)
 
-	for i := 0; i < maxRetries; i++ {
-		// First call to get the required buffer size
-		result, _, _ := procRmGetList.Call(
-			uintptr(sessionHandle),
-			uintptr(unsafe.Pointer(&pnProcInfoNeeded)),
-			uintptr(unsafe.Pointer(&pnProcInfo)),
-			uintptr(unsafe.Pointer(&rgAffectedApps[0])), // Pass the address of the first element
-			uintptr(unsafe.Pointer(&lpdwRebootReasons)),
-		)
+	// First call to get the required buffer size
+	result, _, _ := procRmGetList.Call(
+		uintptr(sessionHandle),
+		uintptr(unsafe.Pointer(&pnProcInfoNeeded)),
+		uintptr(unsafe.Pointer(&pnProcInfo)),
+		uintptr(0), // Pass nil since we're only interested in the required size
+		uintptr(unsafe.Pointer(&lpdwRebootReasons)),
+	)
 
-		if result == ERROR_MORE_DATA {
-			// Buffer not large enough, resize and try again
-			rgAffectedApps = make([]RM_PROCESS_INFO, pnProcInfoNeeded)
-			continue
-		}
-
-		if result != ERROR_SUCCESS {
-			return nil, fmt.Errorf("RmGetList failed with error code %d", result)
-		}
-
-		break
+	if result != ERROR_SUCCESS && result != ERROR_MORE_DATA {
+		return nil, fmt.Errorf("RmGetList failed with error code %d", result)
 	}
 
 	if pnProcInfoNeeded == 0 {
@@ -133,7 +123,9 @@ func RmGetList(sessionHandle uint32) ([]RM_PROCESS_INFO, error) {
 
 	// Allocate memory for the process information
 	rgAffectedApps = make([]RM_PROCESS_INFO, pnProcInfoNeeded)
-	result, _, _ := procRmGetList.Call(
+
+	// Second call to get the actual process information
+	result, _, _ = procRmGetList.Call(
 		uintptr(sessionHandle),
 		uintptr(unsafe.Pointer(&pnProcInfoNeeded)),
 		uintptr(unsafe.Pointer(&pnProcInfo)),
@@ -145,6 +137,7 @@ func RmGetList(sessionHandle uint32) ([]RM_PROCESS_INFO, error) {
 		return nil, fmt.Errorf("RmGetList failed with error code %d", result)
 	}
 
+	// Resize the slice to the actual number of elements
 	return rgAffectedApps[:pnProcInfo], nil
 }
 
