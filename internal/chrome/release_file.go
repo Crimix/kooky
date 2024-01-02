@@ -121,15 +121,15 @@ func RmGetList(sessionHandle uint32) ([]RM_PROCESS_INFO, error) {
 		return nil, nil // No process information available
 	}
 
-	// Allocate memory for the process information
-	rgAffectedApps = make([]RM_PROCESS_INFO, pnProcInfoNeeded)
+	// Temporary buffer to retrieve the process information
+	tempBuffer := make([]RM_PROCESS_INFO, pnProcInfoNeeded)
 
 	// Second call to get the actual process information
 	result, _, _ = procRmGetList.Call(
 		uintptr(sessionHandle),
 		uintptr(unsafe.Pointer(&pnProcInfoNeeded)),
 		uintptr(unsafe.Pointer(&pnProcInfo)),
-		uintptr(unsafe.Pointer(&rgAffectedApps[0])), // Pass the address of the first element
+		uintptr(unsafe.Pointer(&(tempBuffer[0]))), // Pass the address of the first element
 		uintptr(unsafe.Pointer(&lpdwRebootReasons)),
 	)
 
@@ -138,7 +138,9 @@ func RmGetList(sessionHandle uint32) ([]RM_PROCESS_INFO, error) {
 	}
 
 	// Resize the slice to the actual number of elements
-	return rgAffectedApps[:pnProcInfo], nil
+	rgAffectedApps = tempBuffer[:pnProcInfo]
+
+	return rgAffectedApps, nil
 }
 
 func RmShutdown(sessionHandle uint32, flags uint32, fnStatusCallback uintptr) error {
