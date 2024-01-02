@@ -16,16 +16,30 @@ var (
 )
 
 const (
-	CCH_RM_SESSION_KEY = 64
-	ERROR_SUCCESS      = 0
-	ERROR_MORE_DATA    = 234
-	cchAppNameMax      = 255
+	CCH_RM_SESSION_KEY  = 64
+	ERROR_SUCCESS       = 0
+	ERROR_MORE_DATA     = 234
+	CCH_RM_MAX_APP_NAME = 255
+	CCH_RM_MAX_SVC_NAME = 63
+	CCH_RM_MAX_APP_ID   = 255
 )
 
+type RM_UNIQUE_PROCESS struct {
+	ProcessId uint32
+	StartTime FILETIME
+}
+
 type RM_PROCESS_INFO struct {
-	Process  uint32
-	AppType  uint32
-	FAppName [cchAppNameMax + 1]uint16
+	AppType          uint32
+	Process          RM_UNIQUE_PROCESS
+	strAppName       [CCH_RM_MAX_APP_NAME + 1]uint16
+	strServiceShort  [CCH_RM_MAX_SVC_NAME + 1]uint16
+	strApplicationID [CCH_RM_MAX_APP_ID + 1]uint16
+}
+
+type FILETIME struct {
+	DwLowDateTime  uint32
+	DwHighDateTime uint32
 }
 
 func ReleaseFileLock(filePath string) bool {
@@ -42,7 +56,7 @@ func ReleaseFileLock(filePath string) bool {
 			if err == nil {
 				for _, info := range processInfo {
 					// Shutdown the process (forceful termination)
-					shutdownResult := RmShutdown(sessionHandle, info.Process, 0)
+					shutdownResult := RmShutdown(sessionHandle, info.Process.ProcessId, 0)
 					if shutdownResult != nil {
 						RmEndSession(sessionHandle)
 						return false
